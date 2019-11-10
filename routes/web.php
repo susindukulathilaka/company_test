@@ -11,6 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+Route::get('/', 'InvoiceController@index')->name('item');
+Route::get('/itemprice/{id}', 'InvoiceController@getPrice')->name('itemprice');
+Route::post('/saveorder', 'InvoiceController@saveOrder')->name('saveorder');
+Route::post('/addtocart', 'InvoiceController@addToCart')->name('addtocart');
