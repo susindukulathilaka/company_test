@@ -13,10 +13,13 @@ class CreateInvocesTable extends Migration
      */
     public function up()
     {
-        Schema::create('invoices', function (Blueprint $table) {
+        Schema::create('order_headers', function (Blueprint $table) {
             $table->integerIncrements('id');
+            $table->string('order_number', 100);
+            $table->string('customer', 100);
+            $table->string('delivery_address', 100);
             $table->string('total_item', 100);
-            $table->string('total_price', 100);
+            $table->string('total_amount', 100);
             $table->timestampsTz();
         });
     }

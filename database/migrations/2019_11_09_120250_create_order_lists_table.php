@@ -20,10 +20,10 @@ class CreateOrderListsTable extends Migration
             $table->timestampsTz();
         });
 
-        Schema::create('order_lists', function (Blueprint $table) {
+        Schema::create('order_details', function (Blueprint $table) {
             $table->integerIncrements('id');
-            $table->integer('invoice_id')->unsigned();
-            $table->foreign('invoice_id')->references('id')->on('invoices')
+            $table->integer('order_id')->unsigned();
+            $table->foreign('order_id')->references('id')->on('order_headers')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
             $table->integer('item_id')->unsigned();

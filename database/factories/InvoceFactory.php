@@ -2,10 +2,10 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
-use App\invoce;
+use App\orderHeaders;
 use Faker\Generator as Faker;
 
-$factory->define(invoce::class, function (Faker $faker) {
+$factory->define(orderHeaders::class, function (Faker $faker) {
     return [
         //
     ];

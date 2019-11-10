@@ -8,40 +8,34 @@
         margin-left: 200px;
         margin-right: 200px;
     }
-
     #selectItem {
         width: 200px;
         margin-bottom: 20px;
     }
-
     #price {
         padding-bottom: 20px;
         width: 200px;
         margin-bottom: 20px;
     }
-
     #quantity {
         padding-bottom: 20px;
         padding-top: 20px;
         width: 200px;
     }
-
     #total {
         margin-top: 20px;
         margin-bottom: 20px;
     }
-
     .title {
         margin-top: 30px;
         font-size: 50px;
         margin-left: 50px;
     }
-
     #labalitem {
         margin-right: 10px;
     }
-
 </style>
+
 <div class="title">
     Add Item To Cart
 </div>
@@ -109,6 +103,7 @@
     });
 
     var itmearr = [];
+    var listData;
 
     function addItemData(name, price, quant, total) {
         this.tname = name;
@@ -136,30 +131,31 @@
                 "_token": "{{ csrf_token() }}",
                 data: itmearr,
             },
-            success: function () {
-                console.log();
+            success: function (data) {
+                listData = data.html;
+                content = "";
+
+                jQuery.each(data.html, function (x, val) {
+                    content += '<tr>' +
+                        '<td>' + val.itemName + '</td>' +
+                        '<td>' + val.itemPrice + '</td>' +
+                        '<td>' + val.itemQuant + '</td>' +
+                        '<td>' + val.totalPrice + '</td>';
+                });
+                content += "</tr>"
+
+                $('#tdata').html(content);
             }
         });
-
-        content = "<tr>"
-
-        jQuery.each(createList, function (x, val) {
-            content += '<td>' + val + '</td>';
-        });
-        content += "</tr>"
-
-        $('#tdata').append(content);
-
     });
 
     $("#save").click(function () {
-
         $.ajax({
             url: "{{route('saveorder')}}",
             type: "POST",
             data: {
                 "_token": "{{ csrf_token() }}",
-                data: itmearr,
+                data: listData,
             },
             success: function (data) {
                 console.log('success');

@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class invoce extends Model
+class orderHeader extends Model
 {
 
 }
