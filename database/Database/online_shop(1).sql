@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 09, 2019 at 04:20 PM
+-- Generation Time: Nov 10, 2019 at 08:29 PM
 -- Server version: 10.1.40-MariaDB
 -- PHP Version: 7.3.5
 
@@ -40,20 +40,6 @@ CREATE TABLE `failed_jobs` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `invoices`
---
-
-CREATE TABLE `invoices` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `total_item` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `total_price` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `items`
 --
 
@@ -61,9 +47,17 @@ CREATE TABLE `items` (
   `id` int(10) UNSIGNED NOT NULL,
   `item_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `item_price` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `items`
+--
+
+INSERT INTO `items` (`id`, `item_name`, `item_price`, `created_at`, `updated_at`) VALUES
+(1, 'item 1', '200', NULL, NULL),
+(2, 'item 2', '300', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -92,15 +86,43 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `order_headers`
+--
+
+CREATE TABLE `order_headers` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `order_number` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `customer` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `delivery_address` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `total_item` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `total_amount` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `order_headers`
+--
+
+INSERT INTO `order_headers` (`id`, `order_number`, `customer`, `delivery_address`, `total_item`, `total_amount`, `created_at`, `updated_at`) VALUES
+(24, 'order1', 'susindu', 'matara', '1', '200', '2019-11-10 13:51:04', '2019-11-10 13:51:04'),
+(25, 'order1', 'susindu', 'matara', '1', '200', '2019-11-10 13:53:48', '2019-11-10 13:53:48'),
+(26, 'order1', 'susindu', 'matara', '1', '200', '2019-11-10 13:54:34', '2019-11-10 13:54:34'),
+(27, 'order1', 'susindu', 'matara', '1', '200', '2019-11-10 13:55:27', '2019-11-10 13:55:27');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `order_lists`
 --
 
 CREATE TABLE `order_lists` (
   `id` int(10) UNSIGNED NOT NULL,
-  `invoice_id` int(10) UNSIGNED NOT NULL,
+  `order_id` int(10) UNSIGNED NOT NULL,
   `item_id` int(10) UNSIGNED NOT NULL,
   `per_item_price` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `total_price` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `quantity` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -145,12 +167,6 @@ ALTER TABLE `failed_jobs`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `invoices`
---
-ALTER TABLE `invoices`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `items`
 --
 ALTER TABLE `items`
@@ -163,12 +179,18 @@ ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `order_headers`
+--
+ALTER TABLE `order_headers`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `order_lists`
 --
 ALTER TABLE `order_lists`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `order_lists_invoice_id_foreign` (`invoice_id`),
-  ADD KEY `order_lists_item_id_foreign` (`item_id`);
+  ADD KEY `order_details_order_id_foreign` (`order_id`),
+  ADD KEY `order_details_item_id_foreign` (`item_id`);
 
 --
 -- Indexes for table `password_resets`
@@ -194,22 +216,22 @@ ALTER TABLE `failed_jobs`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `invoices`
---
-ALTER TABLE `invoices`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `order_headers`
+--
+ALTER TABLE `order_headers`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `order_lists`
@@ -231,8 +253,8 @@ ALTER TABLE `users`
 -- Constraints for table `order_lists`
 --
 ALTER TABLE `order_lists`
-  ADD CONSTRAINT `order_lists_invoice_id_foreign` FOREIGN KEY (`invoice_id`) REFERENCES `invoices` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `order_lists_item_id_foreign` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `order_details_item_id_foreign` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `order_details_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `order_headers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
