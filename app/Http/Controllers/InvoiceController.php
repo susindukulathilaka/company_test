@@ -46,12 +46,12 @@ class InvoiceController extends Controller
 
         $order->save();
 
-        $orderHeader = new OrderList;
 
         foreach ($request->data as $item) {
+            $orderHeader = new OrderList;
             $itemObject = Item::where('item_name', $item['itemName'])->first();
-            $orderHeader->order_id = $order;
-            $orderHeader->item_id = $itemObject;
+            $orderHeader->order_id = $order['id'];
+            $orderHeader->item_id = $itemObject['id'];
             $orderHeader->per_item_price = $itemObject['item_price'];
             $orderHeader->quantity = $item['itemQuant'];
             $orderHeader->total_price = $item['totalPrice'];
