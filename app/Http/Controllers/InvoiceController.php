@@ -7,7 +7,9 @@ use App\OrderList;
 use Illuminate\Http\Request;
 use App\Item;
 use Illuminate\Support\Arr;
-
+use Illuminate\Support\MessageBag;
+use mysql_xdevapi\Exception;
+use Illuminate\Validation\ValidationException;
 
 class InvoiceController extends Controller
 {
@@ -31,32 +33,47 @@ class InvoiceController extends Controller
 
     public function saveOrder(Request $request)
     {
-        $order = new orderHeader;
-        $itemQuant = 0;
-        $totalAmount = 0;
-        foreach ($request->data as $listItem) {
-            $itemQuant += $listItem['itemQuant'];
-            $totalAmount += $listItem['totalPrice'];
-        }
-        $order->order_number = 'order1';
-        $order->customer = 'susindu';
-        $order->delivery_address = 'matara';
-        $order->total_item = $itemQuant;
-        $order->total_amount  = $totalAmount;
 
-        $order->save();
+        $this->validate($request, ['data' => [
+            'itemPrice' => 'string',
+            'itemName' => 'required',
+            'totalPrice' => 'required'
+        ]]);
 
 
-        foreach ($request->data as $item) {
-            $orderHeader = new OrderList;
-            $itemObject = Item::where('item_name', $item['itemName'])->first();
-            $orderHeader->order_id = $order['id'];
-            $orderHeader->item_id = $itemObject['id'];
-            $orderHeader->per_item_price = $itemObject['item_price'];
-            $orderHeader->quantity = $item['itemQuant'];
-            $orderHeader->total_price = $item['totalPrice'];
 
-            $orderHeader->save();
+        try {
+            $order = new orderHeader;
+            $itemQuant = 0;
+            $totalAmount = 0;
+            foreach ($request->data as $listItem) {
+                $itemQuant += $listItem['itemQuant'];
+                $totalAmount += $listItem['totalPrice'];
+            }
+            $order->order_number = 'order1';
+            $order->customer = 'susindu';
+            $order->delivery_address = 'matara';
+            $order->total_item = $itemQuant;
+            $order->total_amount = $totalAmount;
+
+            $order->save();
+
+
+            foreach ($request->data as $item) {
+                $orderHeader = new OrderList;
+                $itemObject = Item::where('item_name', $item['itemName'])->first();
+                $orderHeader->order_id = $order['id'];
+                $orderHeader->item_id = $itemObject['id'];
+                $orderHeader->per_item_price = $itemObject['item_price'];
+                $orderHeader->quantity = $item['itemQuant'];
+                $orderHeader->total_price = $item['totalPrice'];
+
+                $orderHeader->save();
+            }
+        } catch (\ValidationException $e) {
+            $errors = $e->getMessage();
+            Session::flash('error', 'Whoops.. Please check the provided inputs');
+            return redirect()->back()->withInput()->withErrors[$errors];
         }
 
 
