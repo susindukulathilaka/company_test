@@ -1,8 +1,19 @@
 @extends('layouts.app')
+@section('content')
 
-<link rel="stylesheet" href="{{ asset('css\bootstrap.min.css') }}">
+<head>
+    <link rel="stylesheet" href="{{ asset('css\bootstrap.min.css') }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.js"></script>
+    <style>
+        .error {
+            color: red;
+        }
+    </style>
+</head>
 
-<body>
 <div class="jumbotron jumbotron-fluid">
     <div class="container">
         <h1 class="display-4 text-center">Add Item To Cart</h1>
@@ -10,9 +21,14 @@
 </div>
 <div class="container">
     <div class="row justify-content-md-center">
+        <div class="alert col-sm-5 pt-3" id="msg_div" style="display:none">
+            <span id="res_message"></span>
+        </div>
+        <div class="w-100"></div>
         <div class="col-sm-2 text-right pt-3">
             Select Item
         </div>
+
         <div class="col-sm-3 pt-3">
             <select id="selectItem" class="custom-select w-100">
                 <option selected>Select Item</option>
@@ -64,23 +80,14 @@
             </table>
         </div>
         <div class="w-100"></div>
-        <div class="col-sm-2 pt-3">
+        <div class="col-sm-2 pt-3"></div>
+        <div class="col-sm-2 pt-3 text-left">
             <button id="save" class="btn btn-success">Save Invoice</button>
         </div>
+        <div class="col-sm-1 pt-3"></div>
     </div>
 </div>
 
-@if ($errors->any())
-    <div class="alert alert-danger" id="error">
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-</body>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 
 <script type="text/javascript">
     $("#selectItem").change(function () {
@@ -115,7 +122,7 @@
         this.tquant = quant;
         this.ttotal = total;
     };
-    
+
     $("#addItem").click(function () {
 
         var itemName = $("#selectItem :selected").text();
@@ -148,6 +155,26 @@
                 content += "</tr>"
 
                 $('#tdata').html(content);
+
+                if (result.status) {
+                    $('#res_message').html(result.msg);
+                    $('#msg_div').removeClass('alert-danger');
+                    $('#msg_div').addClass('alert-success');
+                    $('#msg_div').show();
+                    $('#res_message').show();
+                } else {
+                    $('#res_message').html(result.msg);
+                    $('#msg_div').removeClass('alert-success');
+                    $('#msg_div').addClass('alert-danger');
+                    $('#msg_div').show();
+                    $('#res_message').show();
+                }
+
+                document.getElementById("contact_us").reset();
+                setTimeout(function () {
+                    $('#res_message').hide();
+                    $('#msg_div').hide();
+                }, 1500);
             }
         });
     });
@@ -160,12 +187,30 @@
                 "_token": "{{ csrf_token() }}",
                 data: listData,
             },
-            success: function (data) {
-                $('#error').html(data);
+            success: function (result) {
+
+                if (result.status) {
+                    $('#res_message').html(result.msg);
+                    $('#msg_div').removeClass('alert-danger');
+                    $('#msg_div').addClass('alert-success');
+                    $('#msg_div').show();
+                    $('#res_message').show();
+                } else {
+                    $('#res_message').html(result.msg);
+                    $('#msg_div').removeClass('alert-success');
+                    $('#msg_div').addClass('alert-danger');
+                    $('#msg_div').show();
+                    $('#res_message').show();
+                }
+
+                document.getElementById("contact_us").reset();
+                setTimeout(function () {
+                    $('#res_message').hide();
+                    $('#msg_div').hide();
+                }, 1500);
             }
         });
     });
 
 </script>
-
-
+@endsection

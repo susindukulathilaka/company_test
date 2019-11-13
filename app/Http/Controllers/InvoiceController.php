@@ -10,6 +10,9 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\MessageBag;
 use mysql_xdevapi\Exception;
 use Illuminate\Validation\ValidationException;
+use App\Http\Requests\OrderLists;
+use Validator, Redirect, Response;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
 {
@@ -24,6 +27,7 @@ class InvoiceController extends Controller
         return view('order.order', compact('items'));
     }
 
+
     public function getPrice($id)
     {
         $itemPrice = Item::find($id);
@@ -33,16 +37,15 @@ class InvoiceController extends Controller
 
     public function saveOrder(Request $request)
     {
-
-        $this->validate($request, ['data' => [
-            'itemPrice' => 'string',
-            'itemName' => 'required',
-            'totalPrice' => 'required'
-        ]]);
-
-
-
         try {
+            $this->validate($request, [
+                'data' => [
+                    'itemName' => 'required|string',
+                    'itemPrice' => 'required',
+                    'itemQuant' => 'required|numeric',
+                    'totalPrice' => 'required'
+                ]]);
+
             $order = new orderHeader;
             $itemQuant = 0;
             $totalAmount = 0;
@@ -69,11 +72,19 @@ class InvoiceController extends Controller
                 $orderHeader->total_price = $item['totalPrice'];
 
                 $orderHeader->save();
+
+                $arr = array('msg' => 'Contact Added Successfully!', 'status' => true);
+                return Response()->json($arr);
             }
-        } catch (\ValidationException $e) {
-            $errors = $e->getMessage();
-            Session::flash('error', 'Whoops.. Please check the provided inputs');
-            return redirect()->back()->withInput()->withErrors[$errors];
+        } catch (ValidationException $e) {
+
+            DB::rollBack();
+
+            $arr = array('msg' => 'Something went wrong. Please try again!', 'status' => false);
+            return Response()->json($arr);
+
+        } catch (Exception $e) {
+
         }
 
 
@@ -81,31 +92,47 @@ class InvoiceController extends Controller
 
     public function addToCart(Request $request)
     {
-        $quant = 0;
-        $price = 0;
 
-        foreach ($request->data as $orderList) {
-            $orderItemNames [] = $orderList['tname'];
+        try {
+            $this->validate($request, [
+                'data' => [
+                    'itemName' => 'required',
+                    'itemPrice' => 'required',
+                    'itemQuant' => 'required',
+                    'totalPrice' => 'required'
+                ]]);
 
-        }
-
-        $orderItemName = collect($orderItemNames);
-        $uniqueNames = $orderItemName->unique();
-        foreach ($uniqueNames as $uniqueName) {
+            $quant = 0;
+            $price = 0;
 
             foreach ($request->data as $orderList) {
-                $collection = collect($orderList);
-                if ($collection->search($uniqueName) == true) {
+                $orderItemNames [] = $orderList['tname'];
 
-                    $price = $collection['tprice'];
-                    $quant += $collection['tquant'];
-                }
             }
-            $list [] = Arr::add(['itemName' => $uniqueName, 'itemPrice' => $price, 'itemQuant' => $quant], 'totalPrice', $price * $quant);
-            $quant = 0;
-        }
 
-        return response()->json(['success' => true, 'html' => $list]);
+            $orderItemName = collect($orderItemNames);
+            $uniqueNames = $orderItemName->unique();
+            foreach ($uniqueNames as $uniqueName) {
+
+                foreach ($request->data as $orderList) {
+                    $collection = collect($orderList);
+                    if ($collection->search($uniqueName) == true) {
+
+                        $price = $collection['tprice'];
+                        $quant += $collection['tquant'];
+                    }
+                }
+                $list [] = Arr::add(['itemName' => $uniqueName, 'itemPrice' => $price, 'itemQuant' => $quant], 'totalPrice', $price * $quant);
+                $quant = 0;
+            }
+
+            return response()->json(['success' => true, 'html' => $list]);
+
+        } catch (ValidationException $e) {
+
+            $arr = array('msg' => 'Something went wrong. Please try again!', 'status' => false);
+            return Response()->json($arr);
+        }
 
     }
 }

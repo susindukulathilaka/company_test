@@ -11,8 +11,14 @@
 |
 */
 
+Route::group(['middlewareGroups' => 'web'], function () {
+    Route::get('/', 'InvoiceController@index')->name('item');
+    Route::get('/itemprice/{id}', 'InvoiceController@getPrice')->name('itemprice');
+    Route::post('/saveorder', 'InvoiceController@saveOrder')->name('saveorder');
+    Route::post('/addtocart', 'InvoiceController@addToCart')->name('addtocart');
+    Route::get('ajax-form-submit-validation', 'ajaxFormSubmitWithValidation\ContactController@index');
+    Route::post('ajax-form-submit-validation', 'ajaxFormSubmitWithValidation\ContactController@store');
+});
+Auth::routes();
 
-Route::get('/', 'InvoiceController@index')->name('item');
-Route::get('/itemprice/{id}', 'InvoiceController@getPrice')->name('itemprice');
-Route::post('/saveorder', 'InvoiceController@saveOrder')->name('saveorder');
-Route::post('/addtocart', 'InvoiceController@addToCart')->name('addtocart');
+Route::get('/home', 'HomeController@index')->name('home');
