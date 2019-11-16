@@ -23,10 +23,17 @@ class OrderLists extends FormRequest
      */
     public function rules()
     {
-        return [
-                'itemPrice' => 'string',
-                'itemName' => 'required',
-                'totalPrice' => 'required'
-        ];
+        return ['data' => [
+            'itemName' => 'mail|string|numeric',
+            'itemPrice' => 'required',
+            'itemQuant' => 'required|numeric',
+            'totalPrice' => 'required'
+        ]];
+    }
+
+    public function messages() {
+
+        $arr = array('msg' => 'Something went wrong. Please try again!', 'status' => false);
+        return Response()->json($arr);
     }
 }

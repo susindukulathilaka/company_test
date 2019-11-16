@@ -40,9 +40,8 @@ class InvoiceController extends Controller
         try {
             $this->validate($request, [
                 'data' => [
-                    'itemName' => 'required|string',
                     'itemPrice' => 'required',
-                    'itemQuant' => 'required|numeric',
+                    'itemQuant' => 'required',
                     'totalPrice' => 'required'
                 ]]);
 
@@ -92,14 +91,11 @@ class InvoiceController extends Controller
 
     public function addToCart(Request $request)
     {
-
         try {
             $this->validate($request, [
                 'data' => [
-                    'itemName' => 'required',
-                    'itemPrice' => 'required',
-                    'itemQuant' => 'required',
-                    'totalPrice' => 'required'
+                    'tprice' => 'required',
+
                 ]]);
 
             $quant = 0;
@@ -132,6 +128,8 @@ class InvoiceController extends Controller
 
             $arr = array('msg' => 'Something went wrong. Please try again!', 'status' => false);
             return Response()->json($arr);
+        } catch (Exception $e) {
+
         }
 
     }

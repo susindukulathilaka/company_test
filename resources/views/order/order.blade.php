@@ -156,14 +156,8 @@
 
                 $('#tdata').html(content);
 
-                if (result.status) {
-                    $('#res_message').html(result.msg);
-                    $('#msg_div').removeClass('alert-danger');
-                    $('#msg_div').addClass('alert-success');
-                    $('#msg_div').show();
-                    $('#res_message').show();
-                } else {
-                    $('#res_message').html(result.msg);
+                if (data.status == false) {
+                    $('#res_message').html(data.msg);
                     $('#msg_div').removeClass('alert-success');
                     $('#msg_div').addClass('alert-danger');
                     $('#msg_div').show();
@@ -203,7 +197,6 @@
                     $('#res_message').show();
                 }
 
-                document.getElementById("contact_us").reset();
                 setTimeout(function () {
                     $('#res_message').hide();
                     $('#msg_div').hide();
