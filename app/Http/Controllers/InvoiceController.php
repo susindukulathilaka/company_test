@@ -23,8 +23,7 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        $items = Item::all();
-        return view('order.order', compact('items'));
+
     }
 
 
